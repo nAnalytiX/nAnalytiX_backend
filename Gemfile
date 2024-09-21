@@ -15,6 +15,7 @@ gem 'awesome_print'
 gem 'byebug'
 gem 'redis', '~> 5.0', '>= 5.0.8'
 gem 'graphiql-rails'
+gem 'cmath'
 
 group :development, :test do
   gem "debug", platforms: %i[ mri mingw x64_mingw ]
