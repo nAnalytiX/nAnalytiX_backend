@@ -31,6 +31,10 @@ module Methods::IncrementalSearch
         fx0 = fx1
       end
 
+      if data.empty?
+        errors << 'not_found'
+      end
+
       return { data:, errors: }
     end
 

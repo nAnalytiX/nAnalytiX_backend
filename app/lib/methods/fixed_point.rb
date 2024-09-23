@@ -1,11 +1,11 @@
 module Methods::FixedPoint
   class << self
-    def exec(func_f, func_g, x0, tol, nmax)
-      errors = validations(func_f, func_g, x0, tol, nmax)
+    def exec(func_x, func_g, x0, tol, nmax)
+      errors = validations(func_x, func_g, x0, tol, nmax)
 
       return { data: [], errors: } unless errors.empty?
 
-      f = ->(x) { eval(func_f) }
+      f = ->(x) { eval(func_x) }
       g = ->(x) { eval(func_g) }
 
       conclution = nil
@@ -21,7 +21,7 @@ module Methods::FixedPoint
           error = ((x_new - x_old).abs / x_new.abs).abs
         end
 
-        ap Complex(x_new).to_s
+        iterations << { i:, x: x_new, gx: x_old, fx: f.call(x_new), error: }
 
         if error < tol
           conclution = { iteration: i, value: x_new }
@@ -39,8 +39,14 @@ module Methods::FixedPoint
 
     private
 
-    def validations(func_f, func_g, x0, tol, nmax)
+    def validations(func_x, func_g, x0, tol, nmax)
       errors = []
+
+      if func_x == func_g 
+        errors << 'same_func'
+
+        return errors
+      end
 
       if tol <= 0
         errors << 'tol'
@@ -51,7 +57,7 @@ module Methods::FixedPoint
       end
 
       begin
-        f = ->(x) { eval(func_f) }
+        f = ->(x) { eval(func_x) }
       rescue StandardError
         errors << 'function_x_eval'
       end
