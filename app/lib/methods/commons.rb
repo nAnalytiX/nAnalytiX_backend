@@ -4,6 +4,8 @@ module Methods::Commons
     func_string = func_string.gsub(/\bcos\b/, 'Math.cos')
     func_string = func_string.gsub(/\btan\b/, 'Math.tan')
     func_string = func_string.gsub(/\bexp\b/, 'Math.exp')
+    func_string = func_string.gsub(/\log\b/, 'Math.log10')
+    func_string = func_string.gsub(/\ln\b/, 'Math.log')
     func_string = func_string.gsub(/\be\b/, 'Math.exp')
     func_string = func_string.gsub(/\bsqrt\b/, 'Math.sqrt')
     func_string = func_string.gsub(/\^/, '**')
