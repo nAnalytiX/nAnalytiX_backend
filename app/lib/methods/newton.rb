@@ -1,87 +1,96 @@
-module Methods::Newton
-  class << self
-    def exec(func, derivate, x0, tol, nmax)
-      errors = validations(func, derivate, x0, tol, nmax)
+module Methods
+  class Newton
+    def initialize(func, derivate, x0, tol, nmax, error_type = 'abs')
+      @func = Methods::Commons.format_function(func)
+      @derivate = Methods::Commons.format_function(derivate)
+      @x0 = x0
+      @tol = tol || 0.0000001
+      @nmax = nmax || 100
+      @error_type = error_type
 
-      return { data: [], errors: } unless errors.empty?
+      @iterations = []
+      @errors = []
+    end
 
-      f = ->(x) { eval(func) }
-      f_prime = ->(x) { eval(derivate) }
+    def exec
+      initial_validations()
+
+      return { conclution: nil, iterations: [], errors: @errors } unless @errors.empty?
+
+      x0 = @x0.to_f
+      f = ->(x) { eval(@func) }
+      f_prime = ->(x) { eval(@derivate) }
 
       conclution = nil
-      iterations = []
 
       x_old = x0
       error = Float::INFINITY
 
-      (1..nmax).each do |i|
-        f_x = f.call(x_old)
-        f_prime_x = f_prime.call(x_old)
+      @iterations << { i: 0, x: x0, fx: f.call(x_old), f_prime: f_prime.call(x_old), error: }
 
-        if f_prime_x == 0
-          errors << 'derivate_zero'
+      (1..@nmax).each do |i|
+        _Fx = f.call(x_old)
+        _Fprime_x = f_prime.call(x_old)
+
+        if _Fprime_x == 0
+          @errors << 'derivate_zero'
 
           break
         end
 
-        x_new = x_old - f_x / f_prime_x
+        x_new = x_old - _Fx / _Fprime_x
 
         if i > 1
-          error = ((x_new - x_old).abs / x_new.abs).abs
+          # error = ((x_new - x_old).abs / x_new.abs).abs
+          error = Methods::Commons.calc_error(x_new, x_old, @error_type)
         end
 
-        iterations << { i:, x: x_new, f_prime: f_prime_x, fx: f_x, error: }
+        @iterations << { i:, x: x_new, fx: _Fx, f_prime: _Fprime_x, error: }
 
-        if x_new == 0
-          conclution = { iteration: i, value: x_new, found: true }
-
-          break
-        end
-
-        if error < tol
-          conclution = { iteration: i, value: x_new, found: false }
-
+        if error < @tol || x_new == 0
           break
         end
 
         x_old = x_new
       end
 
-      errors << 'not_found' if conclution.nil?
+      conclution = final_validations()
 
-      return { conclution:, iterations:, errors: }
+      { conclution: , iterations: @iterations, errors: @errors }
     end
 
     private
 
-    def validations(func, derivate, x0, tol, nmax)
-      errors = []
+    def initial_validations
+      @errors = Methods::Validations.tolerance @tol, @errors
 
-      if tol <= 0
-        errors << 'tol'
+      @errors = Methods::Validations.max_iterations @nmax, @errors
+
+      @errors = Methods::Validations.x0_value @x0, @errors
+
+      return unless @errors.empty?
+
+      @errors = Methods::Validations.function @func, nil, { x0: @x0 }, @errors
+      @errors = Methods::Validations.function @derivate, 'derivate', { x0: @x0 }, @errors
+    end
+
+    def final_validations
+      conclution = nil
+      last_iteration = @iterations.last
+
+      return conclution unless @errors.empty?
+
+      if last_iteration[:fx] == 0
+        conclution = { message: 'root_found', value: last_iteration[:x], iteration: last_iteration[:i] }
+      elsif last_iteration[:error] < @tol
+        conclution = { message: 'root_aproximation', value: last_iteration[:x], iteration: last_iteration[:i] }
+      elsif last_iteration[:i] === @nmax
+        @errors << 'root_not_found'
+      else
+        @errors << 'method_failure'
       end
 
-      if nmax <= 0
-        errors << 'nmax'
-      end
-
-      begin
-        f = ->(x) { eval(func) }
-      rescue StandardError
-        errors << 'function_eval'
-      end
-
-      begin
-        f = ->(x) { eval(derivate) }
-      rescue StandardError
-        errors << 'derivate_eval'
-      end
-
-      errors
+      conclution
     end
   end
 end
-
-
-
-

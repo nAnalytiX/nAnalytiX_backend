@@ -68,19 +68,19 @@ module Methods::MultipleRoots
 
       begin
         f = ->(x) { eval(func) }
-      rescue StandardError
+      rescue
         errors << 'function_eval'
       end
 
       begin
         f = ->(x) { eval(first_derivate) }
-      rescue StandardError
+      rescue
         errors << 'first_derivate_eval'
       end
 
       begin
         f = ->(x) { eval(second_derivate) }
-      rescue StandardError
+      rescue
         errors << 'second_derivate_eval'
       end
 

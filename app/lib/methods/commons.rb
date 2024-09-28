@@ -12,4 +12,16 @@ module Methods::Commons
 
     func_string
   end
+
+  def self.calc_error value_a, value_b, error_type
+    if error_type == 'abs'
+      return (value_a - value_b).abs
+    end
+
+    if error_type == 'rel'
+      return ((value_a - value_b).abs / value_a.abs).abs
+    end
+
+    0
+  end
 end

@@ -1,63 +1,80 @@
-module Methods::IncrementalSearch
-  class << self
-    def exec(func, x0, delta, nmax)
-      errors = validations(func, x0, delta, nmax)
+module Methods
+  class IncrementalSearch 
+    def initialize(func, x0, delta, nmax = 100)
+      @func = Methods::Commons.format_function(func)
+      @x0 = x0
+      @delta = delta
+      @nmax = nmax
+      @errors = []
+    end
 
-      return { data: [], errors: } unless errors.empty?
+    def exec
+      initial_validations
 
-      f = ->(x) { eval(func) }
-      fx0 = f.call(x0)
+      return { data: [], errors: @errors } unless @errors.empty?
 
-      if fx0 == 0
+      f = ->(x) { eval(@func) }
+      _Fx0 = f.call(@x0)
+      x0 = @x0
+
+      if _Fx0 == 0
         return { data: [], errors: }
       end
 
       data = []
 
-      (1..nmax).each do |i|
-        x1 = x0 + delta
+      byebug
+
+      (1..@nmax).each do |i|
+        x1 = x0 + @delta
 
         begin
-          fx1 = f.call(x1)
-        rescue StandardError => e
+          _Fx1 = f.call(x1)
+        rescue
           ap "Error al evaluar f(x1): #{e.message}"
         end
 
-        if fx0 * fx1 < 0
+        if _Fx0 * _Fx1 <= 0
           data << { x0:, x1: }
         end
 
         x0 = x1
-        fx0 = fx1
+        _Fx0 = _Fx1
       end
 
       if data.empty?
-        errors << 'not_found'
+        @errors << 'not_found'
       end
 
-      return { data:, errors: }
+      return { data:, errors: @errors }
     end
 
     private
 
-    def validations func, x0, delta, nmax
-      errors = []
-
-      if delta == 0
-        errors << 'delta'
+    def initial_validations
+      if @delta == 0
+        @errors << 'delta'
       end
 
-      if nmax <= 0
-        errors << 'nmax'
+      if @nmax <= 0
+        @errors << 'nmax'
       end
+
+      if @x0.is_a? Numeric
+        x0 = @x0.to_f
+      else
+        @errors << 'x0'
+      end
+
+      return unless @errors.empty?
 
       begin
-        f = ->(x) { eval(func) }
-      rescue StandardError
-        errors << 'function_eval'
+        f = ->(x) { eval(@func) }
+      rescue
+        @errors << 'function_eval'
       end
 
-      errors
+      f.call(x0) rescue @errors << 'function_eval_x0'
     end
   end
 end
