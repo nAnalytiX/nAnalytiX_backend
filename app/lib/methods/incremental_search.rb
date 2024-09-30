@@ -5,25 +5,23 @@ module Methods
       @x0 = x0
       @delta = delta
       @nmax = nmax
+
+      @iterations = []
       @errors = []
     end
 
     def exec
-      initial_validations
+      initial_validations()
 
-      return { data: [], errors: @errors } unless @errors.empty?
+      return { iterations: [], errors: @errors } unless @errors.empty?
 
       f = ->(x) { eval(@func) }
       _Fx0 = f.call(@x0)
       x0 = @x0
 
       if _Fx0 == 0
-        return { data: [], errors: }
+        return { iterations: [], errors: }
       end
-
-      data = []
-
-      byebug
 
       (1..@nmax).each do |i|
         x1 = x0 + @delta
@@ -35,46 +33,30 @@ module Methods
         end
 
         if _Fx0 * _Fx1 <= 0
-          data << { x0:, x1: }
+          @iterations << { x0:, x1: }
         end
 
         x0 = x1
         _Fx0 = _Fx1
       end
 
-      if data.empty?
+      if @iterations.empty?
         @errors << 'not_found'
       end
 
-      return { data:, errors: @errors }
+      return { iterations: @iterations, errors: @errors }
     end
 
     private
 
     def initial_validations
-      if @delta == 0
-        @errors << 'delta'
-      end
-
-      if @nmax <= 0
-        @errors << 'nmax'
-      end
-
-      if @x0.is_a? Numeric
-        x0 = @x0.to_f
-      else
-        @errors << 'x0'
-      end
+      @errors = Methods::Validations.delta @delta, @errors
+      @errors = Methods::Validations.max_iterations @nmax, @errors
+      @errors = Methods::Validations.numeric_value @x0, 'x0', @errors
 
       return unless @errors.empty?
 
-      begin
-        f = ->(x) { eval(@func) }
-      rescue
-        @errors << 'function_eval'
-      end
-
-      f.call(x0) rescue @errors << 'function_eval_x0'
+      @errors = Methods::Validations.function @func, nil, { x0: @x0 }, @errors
     end
   end
 end

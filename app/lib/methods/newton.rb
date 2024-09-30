@@ -1,6 +1,6 @@
 module Methods
   class Newton
-    def initialize(func, derivate, x0, tol, nmax, error_type = 'abs')
+    def initialize(func, derivate, x0, tol = 0.0000001, nmax = 100, error_type = 'abs')
       @func = Methods::Commons.format_function(func)
       @derivate = Methods::Commons.format_function(derivate)
       @x0 = x0
@@ -8,6 +8,7 @@ module Methods
       @nmax = nmax || 100
       @error_type = error_type
 
+      @conclution = nil
       @iterations = []
       @errors = []
     end
@@ -40,10 +41,8 @@ module Methods
 
         x_new = x_old - _Fx / _Fprime_x
 
-        if i > 1
-          # error = ((x_new - x_old).abs / x_new.abs).abs
-          error = Methods::Commons.calc_error(x_new, x_old, @error_type)
-        end
+        # error = ((x_new - x_old).abs / x_new.abs).abs
+        error = Methods::Commons.calc_error(x_new, x_old, @error_type)
 
         @iterations << { i:, x: x_new, fx: _Fx, f_prime: _Fprime_x, error: }
 
@@ -54,19 +53,17 @@ module Methods
         x_old = x_new
       end
 
-      conclution = final_validations()
+      final_validations()
 
-      { conclution: , iterations: @iterations, errors: @errors }
+      { conclution: @conclution, iterations: @iterations, errors: @errors }
     end
 
     private
 
     def initial_validations
       @errors = Methods::Validations.tolerance @tol, @errors
-
       @errors = Methods::Validations.max_iterations @nmax, @errors
-
-      @errors = Methods::Validations.x0_value @x0, @errors
+      @errors = Methods::Validations.numeric_value @x0, 'x0_value', @errors
 
       return unless @errors.empty?
 
@@ -75,22 +72,19 @@ module Methods
     end
 
     def final_validations
-      conclution = nil
+      return unless @errors.empty?
+
       last_iteration = @iterations.last
 
-      return conclution unless @errors.empty?
-
       if last_iteration[:fx] == 0
-        conclution = { message: 'root_found', value: last_iteration[:x], iteration: last_iteration[:i] }
+        @conclution = { message: 'root_found', value: last_iteration[:x], iteration: last_iteration[:i] }
       elsif last_iteration[:error] < @tol
-        conclution = { message: 'root_aproximation', value: last_iteration[:x], iteration: last_iteration[:i] }
+        @conclution = { message: 'root_aproximation', value: last_iteration[:x], iteration: last_iteration[:i] }
       elsif last_iteration[:i] === @nmax
         @errors << 'root_not_found'
       else
         @errors << 'method_failure'
       end
-
-      conclution
     end
   end
 end

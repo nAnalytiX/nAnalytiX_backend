@@ -1,6 +1,6 @@
 module Methods
   class Bisection
-    def initialize(func, a, b, tol, nmax, error_type = 'abs')
+    def initialize(func, a, b, tol = 0.0000001, nmax = 100, error_type = 'abs')
       @func = Methods::Commons.format_function(func)
       @a = a
       @b = b
@@ -8,6 +8,7 @@ module Methods
       @nmax = nmax || 100
       @error_type = error_type
 
+      @conclution = nil
       @iterations = []
       @errors = []
     end
@@ -56,21 +57,18 @@ module Methods
         m_old = m_new
       end
 
-      conclution = final_validations()
+      final_validations()
 
-      { conclution: , iterations: @iterations, errors: @errors }
+      { conclution: @conclution, iterations: @iterations, errors: @errors }
     end
 
     private
 
     def intial_validations
       @errors = Methods::Validations.tolerance @tol, @errors
-
       @errors = Methods::Validations.max_iterations @nmax, @errors
-
-      @errors = Methods::Validations.a_interval @a, @errors
-
-      @errors = Methods::Validations.b_interval @a, @errors
+      @errors = Methods::Validations.numeric_value @a, 'a_interval', @errors
+      @errors = Methods::Validations.numeric_value @b, 'b_interval', @errors
 
       return unless @errors.empty?
 
@@ -78,20 +76,19 @@ module Methods
     end
 
     def final_validations
-      conclution = nil
+      return @conclution unless @errors.empty?
+
       last_iteration = @iterations.last
 
       if last_iteration[:fm] == 0
-        conclution = { message: 'root_found', value: last_iteration[:m], iteration: last_iteration[:i] }
+        @conclution = { message: 'root_found', value: last_iteration[:m], iteration: last_iteration[:i] }
       elsif last_iteration[:error] < @tol
-        conclution = { message: 'root_aproximation', value: last_iteration[:m], iteration: last_iteration[:i] }
+        @conclution = { message: 'root_aproximation', value: last_iteration[:m], iteration: last_iteration[:i] }
       elsif last_iteration[:i] === @nmax
         @errors << 'root_not_found'
       else
         @errors << 'method_failure'
       end
-
-      conclution
     end
 
   end

@@ -1,77 +1,85 @@
-module Methods::FixedPoint
-  class << self
-    def exec(func_x, func_g, x0, tol, nmax)
-      errors = validations(func_x, func_g, x0, tol, nmax)
+module Methods
+  class FixedPoint
+    def initialize(func_x, func_g, x0, tol = 0.0000001, nmax = 100, error_type = 'abs')
+      @func_x = Methods::Commons.format_function(func_x)
+      @func_g = Methods::Commons.format_function(func_g)
+      @x0 = x0
+      @tol = tol
+      @nmax = nmax
+      @error_type = error_type
 
-      return { data: [], errors: } unless errors.empty?
+      @conclution = nil
+      @iterations = []
+      @errors = []
+    end
 
-      f = ->(x) { eval(func_x) }
-      g = ->(x) { eval(func_g) }
+    def exec
+      initial_validations()
 
-      conclution = nil
-      iterations = []
+      return { conclution: nil, iterations: [], errors: @errors } unless @errors.empty?
 
-      x_old = x0
+      f = ->(x) { eval(@func_x) }
+      g = ->(x) { eval(@func_g) }
+
+      x_old = @x0.to_f
       error = Float::INFINITY
 
-      (1..nmax).each do |i|
+      @iterations = [{ i: 0, x: x_old, fx: f.call(x_old), gx: g.call(x_old), error: }]
+
+      (1..@nmax).each do |i|
         x_new = g.call(x_old)
+        fx = f.call(x_new)
 
-        if i > 1
-          error = ((x_new - x_old).abs / x_new.abs).abs
-        end
+        #error = ((x_new - x_old).abs / x_new.abs).abs
+        error = Methods::Commons.calc_error(x_new, x_old, @error_type)
 
-        iterations << { i:, x: x_new, gx: x_old, fx: f.call(x_new), error: }
+        @iterations << { i:, x: x_new, fx: fx, gx: x_old, error: }
 
-        if error < tol
-          conclution = { iteration: i, value: x_new }
-
+        if fx == 0 || error < @tol
           break
         end
 
         x_old = x_new
       end
 
-      errors << 'not_found' if conclution.nil?
+      final_validations()
 
-      return { conclution:, iterations:, errors: }
+      { conclution: @conclution, iterations: @iterations, errors: @errors }
     end
 
     private
 
-    def validations(func_x, func_g, x0, tol, nmax)
-      errors = []
+    def initial_validations
+      if @func_x == @func_g 
+        @errors << 'same_func'
 
-      if func_x == func_g 
-        errors << 'same_func'
-
-        return errors
+        return
       end
 
-      if tol <= 0
-        errors << 'tol'
-      end
+      @errors = Methods::Validations.tolerance @tol, @errors
+      @errors = Methods::Validations.max_iterations @nmax, @errors
+      @errors = Methods::Validations.numeric_value @x0, 'x0_value', @errors
 
-      if nmax <= 0
-        errors << 'nmax'
-      end
+      return unless @errors.empty?
 
-      begin
-        f = ->(x) { eval(func_x) }
-      rescue StandardError
-        errors << 'function_x_eval'
-      end
+      @errors = Methods::Validations.function @func_x, 'function_f', { x0: @x0 }, @errors
+      @errors = Methods::Validations.function @func_g, 'function_g', { x0: @x0 }, @errors
+    end
 
-      begin
-        f = ->(x) { eval(func_g) }
-      rescue StandardError
-        errors << 'function_g_eval'
-      end
+    def final_validations
+      return @conclution unless @errors.empty?
 
-      errors
+      last_iteration = @iterations.last
+
+      if last_iteration[:fx] == 0
+        @conclution = { message: 'root_found', value: last_iteration[:x], iteration: last_iteration[:i] }
+      elsif last_iteration[:error] < @tol
+        @conclution = { message: 'root_aproximation', value: last_iteration[:x], iteration: last_iteration[:i] }
+      elsif last_iteration[:i] === @nmax
+        @errors << 'root_not_found'
+      else
+        @errors << 'method_failure'
+      end
     end
   end
 end
-
-
-

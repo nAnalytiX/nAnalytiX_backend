@@ -1,6 +1,6 @@
 module Methods::Validations
 
-  def self.function function, name = 'function', variables = {}, errors
+  def self.function function, error_name = 'function', variables = {}, errors
     begin
       f = ->(x) { eval(function) }
     rescue
@@ -14,6 +14,14 @@ module Methods::Validations
     end
 
     errors
+  end
+
+  def self.delta delta, errors
+    if !delta.present? && tol <= 0
+      errors << 'delta'
+    end
+
+    return errors
   end
 
   def self.tolerance tolerance, errors
@@ -32,25 +40,9 @@ module Methods::Validations
     return errors
   end
 
-  def self.a_interval interval, errors
-    unless interval.is_a? Numeric
-      errors << 'a_interval'
-    end
-
-    return errors
-  end
-
-  def self.b_interval interval, errors
-    unless interval.is_a? Numeric
-      errors << 'b_interval'
-    end
-
-    return errors
-  end
-
-  def self.x0_value value, errors
+  def self.numeric_value value, name, errors
     unless value.is_a? Numeric
-      errors << 'x0_interval'
+      errors << name
     end
 
     return errors
