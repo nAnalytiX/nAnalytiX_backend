@@ -1,4 +1,4 @@
-module Methods::Commons
+module Methods::Utils::Commons
   def self.format_function func_string
     func_string = func_string.gsub(/\bsin\b/, 'Math.sin')
     func_string = func_string.gsub(/\bcos\b/, 'Math.cos')

@@ -1,7 +1,8 @@
-module Methods
+module Methods::NonLinearEquations
   class IncrementalSearch 
+
     def initialize(func, x0, delta, nmax = 100)
-      @func = Methods::Commons.format_function(func)
+      @func = Methods::Utils::Commons.format_function(func)
       @x0 = x0
       @delta = delta
       @nmax = nmax
@@ -50,13 +51,13 @@ module Methods
     private
 
     def initial_validations
-      @errors = Methods::Validations.delta @delta, @errors
-      @errors = Methods::Validations.max_iterations @nmax, @errors
-      @errors = Methods::Validations.numeric_value @x0, 'x0', @errors
+      @errors = Methods::Utils::Validations.delta @delta, @errors
+      @errors = Methods::Utils::Validations.max_iterations @nmax, @errors
+      @errors = Methods::Utils::Validations.numeric_value @x0, 'x0', @errors
 
       return unless @errors.empty?
 
-      @errors = Methods::Validations.function @func, nil, { x0: @x0 }, @errors
+      @errors = Methods::Utils::Validations.function @func, nil, { x0: @x0 }, @errors
     end
   end
 end

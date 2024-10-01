@@ -1,11 +1,11 @@
-module Methods
-  class FalsePosition
+module Methods::NonLinearEquations
+  class Bisection
     def initialize(func, a, b, tol = 0.0000001, nmax = 100, error_type = 'abs')
-      @func = Methods::Commons.format_function(func)
+      @func = Methods::Utils::Commons.format_function(func)
       @a = a
       @b = b
-      @tol = tol
-      @nmax = nmax
+      @tol = tol || 0.0000001
+      @nmax = nmax || 100
       @error_type = error_type
 
       @conclution = nil
@@ -14,29 +14,33 @@ module Methods
     end
 
     def exec
-      initial_validations()
+      intial_validations()
 
       return { conclution: nil, iterations: [], errors: @errors } unless @errors.empty?
 
-      f = ->(x) { eval(@func) }
       a = @a.to_f
       b = @b.to_f
+      f = ->(x) { eval(@func) }
       _Fx_a = f.call(a)
       _Fx_b = f.call(b)
 
+      if _Fx_a * _Fx_b > 0
+        return { conclution: nil, iterations: [], errors: ['interval'] }
+      end
+
       error = Float::INFINITY
-      m_old = b
+      m_old = (a + b) / 2.0
 
       (1..@nmax).each do |i|
-        m_new = b - ((_Fx_b * (b - a)) / (_Fx_b - _Fx_a))
+        m_new = (a + b) / 2.0
         _Fx_m = f.call(m_new)
 
         if i > 1
-          #error = ((m - m_old).abs / m.abs).abs
-          error = Methods::Commons.calc_error(m_new, m_old, @error_type)
+          #error = ((m_new - m_old).abs / m_new.abs).abs
+          error = Methods::Utils::Commons.calc_error(m_new, m_old, @error_type)
         end
 
-        @iterations << { i:, a:, m: m_new, b:, fa: _Fx_a, fm: _Fx_m, fb: _Fx_b, error: }
+        @iterations << { i:, a:, m: m_new, b:, fa: _Fx_b, fm: _Fx_m, fb: _Fx_a, error: }
 
         if error < @tol || _Fx_m == 0
           break
@@ -60,21 +64,15 @@ module Methods
 
     private
 
-    def initial_validations
-      @errors = Methods::Validations.tolerance @tol, @errors
-      @errors = Methods::Validations.max_iterations @nmax, @errors
-      @errors = Methods::Validations.numeric_value @a, 'a_interval', @errors
-      @errors = Methods::Validations.numeric_value @b, 'b_interval', @errors
+    def intial_validations
+      @errors = Methods::Utils::Validations.tolerance @tol, @errors
+      @errors = Methods::Utils::Validations.max_iterations @nmax, @errors
+      @errors = Methods::Utils::Validations.numeric_value @a, 'a_interval', @errors
+      @errors = Methods::Utils::Validations.numeric_value @b, 'b_interval', @errors
 
       return unless @errors.empty?
 
-      @errors = Methods::Validations.function @func, nil, { a: @a, b: @b }, @errors
-
-      f = ->(x) { eval(@func) }
-
-      if f.call(@a) * f.call(@b) > 0
-        @errors << 'interval'
-      end
+      @errors = Methods::Utils::Validations.function @func, nil, { a: @a, b: @b }, @errors
     end
 
     def final_validations
@@ -95,3 +93,4 @@ module Methods
 
   end
 end
+

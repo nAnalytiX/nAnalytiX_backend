@@ -1,4 +1,4 @@
-module Methods::Validations
+module Methods::Utils::Validations
 
   def self.function function, error_name = 'function', variables = {}, errors
     begin

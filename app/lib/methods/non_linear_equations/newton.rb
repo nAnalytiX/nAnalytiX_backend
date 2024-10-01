@@ -1,8 +1,9 @@
-module Methods
+module Methods::NonLinearEquations
   class Newton
+
     def initialize(func, derivate, x0, tol = 0.0000001, nmax = 100, error_type = 'abs')
-      @func = Methods::Commons.format_function(func)
-      @derivate = Methods::Commons.format_function(derivate)
+      @func = Methods::Utils::Commons.format_function(func)
+      @derivate = Methods::Utils::Commons.format_function(derivate)
       @x0 = x0
       @tol = tol || 0.0000001
       @nmax = nmax || 100
@@ -42,7 +43,7 @@ module Methods
         x_new = x_old - _Fx / _Fprime_x
 
         # error = ((x_new - x_old).abs / x_new.abs).abs
-        error = Methods::Commons.calc_error(x_new, x_old, @error_type)
+        error = Methods::Utils::Commons.calc_error(x_new, x_old, @error_type)
 
         @iterations << { i:, x: x_new, fx: _Fx, f_prime: _Fprime_x, error: }
 
@@ -61,14 +62,14 @@ module Methods
     private
 
     def initial_validations
-      @errors = Methods::Validations.tolerance @tol, @errors
-      @errors = Methods::Validations.max_iterations @nmax, @errors
-      @errors = Methods::Validations.numeric_value @x0, 'x0_value', @errors
+      @errors = Methods::Utils::Validations.tolerance @tol, @errors
+      @errors = Methods::Utils::Validations.max_iterations @nmax, @errors
+      @errors = Methods::Utils::Validations.numeric_value @x0, 'x0_value', @errors
 
       return unless @errors.empty?
 
-      @errors = Methods::Validations.function @func, nil, { x0: @x0 }, @errors
-      @errors = Methods::Validations.function @derivate, 'derivate', { x0: @x0 }, @errors
+      @errors = Methods::Utils::Validations.function @func, nil, { x0: @x0 }, @errors
+      @errors = Methods::Utils::Validations.function @derivate, 'derivate', { x0: @x0 }, @errors
     end
 
     def final_validations

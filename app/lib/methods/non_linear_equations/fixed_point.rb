@@ -1,8 +1,9 @@
-module Methods
+module Methods::NonLinearEquations
   class FixedPoint
+
     def initialize(func_x, func_g, x0, tol = 0.0000001, nmax = 100, error_type = 'abs')
-      @func_x = Methods::Commons.format_function(func_x)
-      @func_g = Methods::Commons.format_function(func_g)
+      @func_x = Methods::Utils::Commons.format_function(func_x)
+      @func_g = Methods::Utils::Commons.format_function(func_g)
       @x0 = x0
       @tol = tol
       @nmax = nmax
@@ -31,7 +32,7 @@ module Methods
         fx = f.call(x_new)
 
         #error = ((x_new - x_old).abs / x_new.abs).abs
-        error = Methods::Commons.calc_error(x_new, x_old, @error_type)
+        error = Methods::Utils::Commons.calc_error(x_new, x_old, @error_type)
 
         @iterations << { i:, x: x_new, fx: fx, gx: x_old, error: }
 
@@ -56,14 +57,14 @@ module Methods
         return
       end
 
-      @errors = Methods::Validations.tolerance @tol, @errors
-      @errors = Methods::Validations.max_iterations @nmax, @errors
-      @errors = Methods::Validations.numeric_value @x0, 'x0_value', @errors
+      @errors = Methods::Utils::Validations.tolerance @tol, @errors
+      @errors = Methods::Utils::Validations.max_iterations @nmax, @errors
+      @errors = Methods::Utils::Validations.numeric_value @x0, 'x0_value', @errors
 
       return unless @errors.empty?
 
-      @errors = Methods::Validations.function @func_x, 'function_f', { x0: @x0 }, @errors
-      @errors = Methods::Validations.function @func_g, 'function_g', { x0: @x0 }, @errors
+      @errors = Methods::Utils::Validations.function @func_x, 'function_f', { x0: @x0 }, @errors
+      @errors = Methods::Utils::Validations.function @func_g, 'function_g', { x0: @x0 }, @errors
     end
 
     def final_validations

@@ -1,9 +1,10 @@
-module Methods
+module Methods::NonLinearEquations
   class MultipleRoots
+
     def initialize(func, first_derivate, second_derivate, x0, tol = 0.0000001, nmax = 100, error_type = 'abs')
-      @func = Methods::Commons.format_function(func)
-      @first_derivate = Methods::Commons.format_function(first_derivate)
-      @second_derivate = Methods::Commons.format_function(second_derivate)
+      @func = Methods::Utils::Commons.format_function(func)
+      @first_derivate = Methods::Utils::Commons.format_function(first_derivate)
+      @second_derivate = Methods::Utils::Commons.format_function(second_derivate)
       @x0 = x0
       @tol = tol
       @nmax = nmax
@@ -41,7 +42,8 @@ module Methods
 
         x_new = x0 - f_x * f_prime_x / (f_prime_x ** 2 - f_x * f_double_prime_x)
 
-        error = ((x_new - x0).abs / x_new.abs).abs
+        #error = ((x_new - x0).abs / x_new.abs).abs
+        error = Methods::Utils::Commons.calc_error(x_new, x0, @error_type)
 
         @iterations << { i:, x: x_new, fx: f_x, error: }
 
@@ -60,15 +62,15 @@ module Methods
     private
 
     def initial_validations
-      @errors = Methods::Validations.tolerance @tol, @errors
-      @errors = Methods::Validations.max_iterations @nmax, @errors
-      @errors = Methods::Validations.numeric_value @x0, 'x0_value', @errors
+      @errors = Methods::Utils::Validations.tolerance @tol, @errors
+      @errors = Methods::Utils::Validations.max_iterations @nmax, @errors
+      @errors = Methods::Utils::Validations.numeric_value @x0, 'x0_value', @errors
 
       return unless @errors.empty?
 
-      @errors = Methods::Validations.function @func, nil, { x0: @x0 }, @errors
-      @errors = Methods::Validations.function @first_derivate, 'first_derivate', { x0: @x0 }, @errors
-      @errors = Methods::Validations.function @second_derivate, 'second_derivate', { x0: @x0 }, @errors
+      @errors = Methods::Utils::Validations.function @func, nil, { x0: @x0 }, @errors
+      @errors = Methods::Utils::Validations.function @first_derivate, 'first_derivate', { x0: @x0 }, @errors
+      @errors = Methods::Utils::Validations.function @second_derivate, 'second_derivate', { x0: @x0 }, @errors
     end
 
     def final_validations
