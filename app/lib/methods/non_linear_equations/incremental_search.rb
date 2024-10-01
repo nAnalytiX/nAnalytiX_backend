@@ -1,7 +1,6 @@
-module Methods::NonLinearEquations
-  class IncrementalSearch 
-
-    def initialize(func, x0, delta, nmax = 100)
+module Methods::NonLinearEquations::IncrementalSearch 
+  class << self
+    def exec(func, x0, delta, nmax = 100)
       @func = Methods::Utils::Commons.format_function(func)
       @x0 = x0
       @delta = delta
@@ -9,9 +8,7 @@ module Methods::NonLinearEquations
 
       @iterations = []
       @errors = []
-    end
 
-    def exec
       initial_validations()
 
       return { iterations: [], errors: @errors } unless @errors.empty?

@@ -1,7 +1,6 @@
-module Methods::NonLinearEquations
-  class Secant
-
-    def initialize(func, x0, x1, tol = 0.0000001, nmax = 100, error_type = 'abs')
+module Methods::NonLinearEquations::Secant
+  class << self
+    def exec(func, x0, x1, tol = 0.0000001, nmax = 100, error_type = 'abs')
       @func = Methods::Utils::Commons.format_function(func)
       @x0 = x0
       @x1 = x1
@@ -12,9 +11,7 @@ module Methods::NonLinearEquations
       @conclution = nil
       @iterations = []
       @errors = []
-    end
 
-    def exec
       initial_validations()
 
       return { conclution: nil, iterations: [], errors: @errors } unless @errors.empty?

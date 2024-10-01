@@ -1,7 +1,6 @@
-module Methods::NonLinearEquations
-  class MultipleRoots
-
-    def initialize(func, first_derivate, second_derivate, x0, tol = 0.0000001, nmax = 100, error_type = 'abs')
+module Methods::NonLinearEquations::MultipleRoots
+  class << self
+    def exec(func, first_derivate, second_derivate, x0, tol = 0.0000001, nmax = 100, error_type = 'abs')
       @func = Methods::Utils::Commons.format_function(func)
       @first_derivate = Methods::Utils::Commons.format_function(first_derivate)
       @second_derivate = Methods::Utils::Commons.format_function(second_derivate)
@@ -13,9 +12,7 @@ module Methods::NonLinearEquations
       @conclution = nil
       @iterations = []
       @errors = []
-    end
 
-    def exec
       initial_validations()
 
       return { conclution: nil, iterations: [], errors: @errors } unless @errors.empty?

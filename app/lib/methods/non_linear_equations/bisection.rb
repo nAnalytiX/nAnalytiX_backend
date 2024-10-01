@@ -1,6 +1,6 @@
-module Methods::NonLinearEquations
-  class Bisection
-    def initialize(func, a, b, tol = 0.0000001, nmax = 100, error_type = 'abs')
+module Methods::NonLinearEquations::Bisection
+  class << self
+    def exec(func, a, b, tol = 0.0000001, nmax = 100, error_type = 'abs')
       @func = Methods::Utils::Commons.format_function(func)
       @a = a
       @b = b
@@ -11,9 +11,7 @@ module Methods::NonLinearEquations
       @conclution = nil
       @iterations = []
       @errors = []
-    end
 
-    def exec
       intial_validations()
 
       return { conclution: nil, iterations: [], errors: @errors } unless @errors.empty?

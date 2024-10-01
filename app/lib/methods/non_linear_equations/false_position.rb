@@ -1,7 +1,7 @@
-module Methods::NonLinearEquations
-  class FalsePosition
+module Methods::NonLinearEquations::FalsePosition
+  class << self
 
-    def initialize(func, a, b, tol = 0.0000001, nmax = 100, error_type = 'abs')
+    def exec(func, a, b, tol = 0.0000001, nmax = 100, error_type = 'abs')
       @func = Methods::Utils::Commons.format_function(func)
       @a = a
       @b = b
@@ -12,9 +12,7 @@ module Methods::NonLinearEquations
       @conclution = nil
       @iterations = []
       @errors = []
-    end
 
-    def exec
       initial_validations()
 
       return { conclution: nil, iterations: [], errors: @errors } unless @errors.empty?

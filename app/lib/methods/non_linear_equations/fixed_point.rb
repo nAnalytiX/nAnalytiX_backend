@@ -1,7 +1,6 @@
-module Methods::NonLinearEquations
-  class FixedPoint
-
-    def initialize(func_x, func_g, x0, tol = 0.0000001, nmax = 100, error_type = 'abs')
+module Methods::NonLinearEquations::FixedPoint
+  class << self
+    def exec(func_x, func_g, x0, tol = 0.0000001, nmax = 100, error_type = 'abs')
       @func_x = Methods::Utils::Commons.format_function(func_x)
       @func_g = Methods::Utils::Commons.format_function(func_g)
       @x0 = x0
@@ -12,9 +11,7 @@ module Methods::NonLinearEquations
       @conclution = nil
       @iterations = []
       @errors = []
-    end
 
-    def exec
       initial_validations()
 
       return { conclution: nil, iterations: [], errors: @errors } unless @errors.empty?

@@ -19,10 +19,8 @@ module Methods::LinearEquations::GaussEliminationPartial
       (0..n-1).each do |k|
         @iterations << { step: k, matrix: a.map(&:dup), vector: b.dup }
 
-        # Encontrar el máximo pivote en la columna k
         max_index = (k...n).max_by { |i| a[i][k].abs }
 
-        # Intercambiar filas si el pivote máximo no está en la fila actual
         if k != max_index
           a[k], a[max_index] = a[max_index], a[k]
           b[k], b[max_index] = b[max_index], b[k]

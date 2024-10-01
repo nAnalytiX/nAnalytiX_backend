@@ -1,7 +1,6 @@
-module Methods::NonLinearEquations
-  class Newton
-
-    def initialize(func, derivate, x0, tol = 0.0000001, nmax = 100, error_type = 'abs')
+module Methods::NonLinearEquations::Newton
+  class << self
+    def exec(func, derivate, x0, tol = 0.0000001, nmax = 100, error_type = 'abs')
       @func = Methods::Utils::Commons.format_function(func)
       @derivate = Methods::Utils::Commons.format_function(derivate)
       @x0 = x0
@@ -12,9 +11,7 @@ module Methods::NonLinearEquations
       @conclution = nil
       @iterations = []
       @errors = []
-    end
 
-    def exec
       initial_validations()
 
       return { conclution: nil, iterations: [], errors: @errors } unless @errors.empty?

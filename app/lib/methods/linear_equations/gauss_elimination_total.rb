@@ -16,7 +16,7 @@ module Methods::LinearEquations::GaussEliminationTotal
       b = @vector_b
       n = @matrix_a.size
 
-      perm = (0...n).to_a  # Permutaciones de las columnas (para recordar intercambios)
+      perm = (0...n).to_a
 
       (0..n-1).each do |k|
         @iterations << { step: k, matrix: a.map(&:dup), vector: b.dup }
@@ -45,7 +45,7 @@ module Methods::LinearEquations::GaussEliminationTotal
             a[i][k], a[i][max_col] = a[i][max_col], a[i][k]
           end
 
-          perm[k], perm[max_col] = perm[max_col], perm[k]  # Registrar permutación
+          perm[k], perm[max_col] = perm[max_col], perm[k]
         end
 
         if a[k][k] == 0
