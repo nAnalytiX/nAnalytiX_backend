@@ -18,6 +18,7 @@ gem 'graphiql-rails'
 gem 'cmath'
 gem 'bigdecimal'
 gem 'matrix'
+gem 'rack-cors'
 
 group :development, :test do
   gem "debug", platforms: %i[ mri mingw x64_mingw ]

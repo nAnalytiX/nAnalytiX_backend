@@ -1,0 +1,83 @@
+require 'matrix'
+require 'cmath'
+
+module Methods::LinearEquations::Cholesky
+  class << self
+    def exec(matrix, vector = [1, 1, 1 ,1])
+      @matrix = matrix
+      @vector = vector
+      @errors = []
+      @iterations = []
+
+      # Validations
+      @errors = Methods::Utils::Matrix.matrix_vector_validations @matrix, @vector
+
+      return { iterations: [], errors: @errors } unless @errors.empty?
+
+      n = matrix.size
+
+      # Initial L and U matrices, with ones in the diagonal and zero in the rest
+      _L, _U = Methods::Utils::Matrix.generate_LU_matrix @matrix
+
+      # Step 1
+      @iterations << Methods::Utils::Matrix.store_matrices({ L: _L, U: _U})
+
+      (0...n - 1).each do |i|
+        prod = 0
+        (0...i).each do |k|
+          prod += _L[i][k] * _U[k][i]
+        end
+        _L[n - 1][n - 1] = @matrix[n - 1][n - 1] - prod
+        
+        _L[i][i] = CMath.sqrt(@matrix[i][i] + -prod)
+        _U[i][i] = _L[i][i]
+
+        # Calculate L values
+        (i...n).each do |j|
+          prod = 0
+
+          (0...i).each do |k|
+            prod += _L[j][k] * _U[k][i] 
+          end
+
+          _L[j][i] = (@matrix[j][i] - prod) / _U[i][i]
+        end
+
+        # Calculate U values
+        (i + 1...n).each do |j|
+          prod = 0
+
+          (0...i).each do |k|
+            prod += _L[i][k] * _U[k][j] 
+          end
+
+          _U[i][j] = (@matrix[i][j] - prod) / _L[i][i]
+        end
+
+        # Save Iteration
+        @iterations << Methods::Utils::Matrix.store_matrices({ L: _L, U: _U})
+      end
+
+      # Last Step
+      prod = 0
+      (0...n - 1).each do |k|
+        prod += _L[n - 1][k] * _U[k][n - 1]
+      end
+
+      _L[n - 1][n - 1] = CMath.sqrt(matrix[n - 1][n - 1] - prod)
+      _U[n - 1][n - 1] = _L[n - 1][n - 1]
+
+      @iterations << Methods::Utils::Matrix.store_matrices({ L: _L, U: _U})
+
+      # Progressive Sustitution: resolver LY = B
+      progressive_result = Methods::Utils::Matrix.progressive_sustitution(_L, @vector)
+
+      # Regresive Sustitution: resolver UX = Y
+      regresive_result = Methods::Utils::Matrix.regressive_sustitution(_U, progressive_result)
+
+      solution = Methods::Utils::Matrix.store_vector(regresive_result)
+
+      return { solution:, iterations: @iterations, errors: @errors }
+    end
+  end
+end

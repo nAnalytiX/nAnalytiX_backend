@@ -1,4 +1,4 @@
-module Methods::NonLinearEquations::IncrementalSearch 
+module Methods::NonLinearEquations::IncrementalSearch
   class << self
     def exec(func, x0, delta, nmax = 100)
       @func = Methods::Utils::Commons.format_function(func)
