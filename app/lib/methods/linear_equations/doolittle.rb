@@ -58,20 +58,12 @@ module Methods::LinearEquations::Doolittle
       @iterations << Methods::Utils::Matrix.store_matrices({ L: _L, U: _U})
 
       # Progressive Sustitution: resolver LY = B
-      y = Array.new(n, 0.0)
-      (0...n).each do |i|
-        y[i] = @vector[i]
-
-        (0...i).each { |j| y[i] -= _L[i][j] * y[j] }
-      end
+      progressive_result = Methods::Utils::Matrix.progressive_sustitution(_L, @vector)
 
       # Regresive Sustitution: resolver UX = Y
-      x = Array.new(n, 0.0)
-      (n - 1).downto(0) do |i|
-        x[i] = (y[i] - (i + 1...n).sum { |k| _U[i][k] * x[k] }) / _U[i][i]
-      end
+      regresive_result = Methods::Utils::Matrix.regressive_sustitution(_U, progressive_result)
 
-      solution = Methods::Utils::Matrix.store_vector(x)
+      solution = Methods::Utils::Matrix.store_vector(regresive_result)
 
       return { solution:, iterations: @iterations, errors: @errors }
     end

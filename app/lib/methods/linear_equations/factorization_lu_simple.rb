@@ -8,17 +8,17 @@ module Methods::LinearEquations::FactorizationLuSimple
       @errors = []
       @iterations = []
 
-      initial_validations()
+      @errors = Methods::Utils::Matrix.matrix_vector_validations @matrix, @vector
 
       return { iterations: [], errors: @errors } unless @errors.empty?
       n = matrix.size
 
-      _L = generate_L_matrix @matrix
-      _U = generate_U_matrix @matrix
+      _L = Methods::Utils::Matrix.generate_L_matrix @matrix
+      _U = Methods::Utils::Matrix.generate_U_matrix @matrix
 
       _M = @matrix.map(&:dup)
 
-      @iterations << { M: store_matrix(_M), L: store_matrix(_L), U: store_matrix(_U) }
+      @iterations << Methods::Utils::Matrix.store_matrices({ M: _M, L: _L, U: _U})
 
       (0...n - 1).each do |i|
         if _M[i][i].zero?
@@ -52,33 +52,21 @@ module Methods::LinearEquations::FactorizationLuSimple
           _U[i + 1][j] = _M[i + 1][j];
         end
 
-        @iterations << { M: store_matrix(_M), L: store_matrix(_L), U: store_matrix(_U) }
+        @iterations << Methods::Utils::Matrix.store_matrices({ M: _M, L: _L, U: _U})
       end
 
       # Progressive Sustitution: resolver LY = B
-      y = Array.new(n, 0.0)
-      (0...n).each do |i|
-        y[i] = @vector[i]
-
-        (0...i).each { |j| y[i] -= _L[i][j] * y[j] }
-      end
+      progressive_result = Methods::Utils::Matrix.progressive_sustitution(_L, @vector)
 
       # Regresive Sustitution: resolver UX = Y
-      x = Array.new(n, 0.0)
-      (n - 1).downto(0) do |i|
-        x[i] = (y[i] - (i + 1...n).sum { |k| _U[i][k] * x[k] }) / _U[i][i]
-      end
+      regresive_result = Methods::Utils::Matrix.regressive_sustitution(_U, progressive_result)
 
-      x = x.map { |val| sprintf("%0.7f", val) }
+      solution = Methods::Utils::Matrix.store_vector(regresive_result)
 
-      return { iterations: @iterations, solution: x, errors: @errors }
+      return { iterations: @iterations, solution: solution, errors: @errors }
     end
 
     private
-
-    def print_matrix(matrix)
-      matrix.each { |row| puts row.map { |val| sprintf("%0.6f", val) }.join(" ") }
-    end
 
     def generate_L_matrix matrix
       n = matrix.size
@@ -96,19 +84,6 @@ module Methods::LinearEquations::FactorizationLuSimple
       n.times do |i|
         n.times do |j|
           result[i][j] = i == 0 ? matrix[i][j] : 0.0
-        end
-      end
-
-      result
-    end
-
-    def store_matrix matrix
-      n = matrix.size
-      result = Array.new(n) { Array.new(n, 0.0) }
-
-      n.times do |i|
-        n.times do |j|
-          result[i][j] = sprintf('%0.7f', matrix[i][j])
         end
       end
 
