@@ -91,4 +91,3 @@ module Methods::NonLinearEquations::Bisection
 
   end
 end
-

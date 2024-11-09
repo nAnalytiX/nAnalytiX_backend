@@ -48,10 +48,11 @@ module Methods::Utils::Matrix
 
   def self.store_matrix matrix
     n = matrix.size
+    m = matrix[0].size
     result = Array.new(n) { Array.new(n, 0.0) }
 
     n.times do |i|
-      n.times do |j|
+      m.times do |j|
         result[i][j] = matrix[i][j].class == Complex ? matrix[i][j] : sprintf('%0.7f', matrix[i][j])
       end
     end

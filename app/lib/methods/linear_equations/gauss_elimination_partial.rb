@@ -3,21 +3,25 @@ require 'matrix'
 module Methods::LinearEquations::GaussEliminationPartial
   class << self
     def exec(matrix_a, vector_b)
-      @matrix_a = matrix_a
-      @vector_b = vector_b
-      @errors = []
-      @iterations = []
+      matrix = matrix_a.map(&:dup)
+      vector = vector_b.map(&:dup)
+      errors = []
+      iterations = []
 
-      initial_validations()
+      errors = Methods::Utils::Matrix.matrix_vector_validations matrix, vector
 
-      return { result: nil, iterations: [], errors: @errors } unless @errors.empty?
+      return { result: nil, iterations: [], errors: } unless errors.empty?
 
-      a = @matrix_a
-      b = @vector_b
-      n = @matrix_a.size
+      a = matrix
+      b = vector
 
-      (0..n-1).each do |k|
-        @iterations << { step: k, matrix: a.map(&:dup), vector: b.dup }
+      n = matrix.size
+
+      (0..n - 1).each do |k|
+        iterations << { step: k,
+                        matrix: Methods::Utils::Matrix.store_matrix(a),
+                        vector: Methods::Utils::Matrix.store_vector(b)
+                      }
 
         max_index = (k...n).max_by { |i| a[i][k].abs }
 
@@ -27,7 +31,9 @@ module Methods::LinearEquations::GaussEliminationPartial
         end
 
         if a[k][k] == 0
-          raise 'error'
+          errors << 'error'
+
+          break
         end
 
         (k+1...n).each do |i|
@@ -39,60 +45,24 @@ module Methods::LinearEquations::GaussEliminationPartial
         end
       end
 
-      res = Array.new(n, 0)
+      result = Array.new(n, 0)
 
-      (n-1).downto(0) do |i|
+      (n - 1).downto(0) do |i|
         sum = 0
         ((i+1)...n).each do |j|
-          sum += a[i][j] * res[j]
+          sum += a[i][j] * result[j]
         end
+
         if a[i][i] == 0
-          @errors << 'no_pivot_sustitution'
+          errors << 'no_pivot_sustitution'
 
           break
         end
-        res[i] = (b[i] - sum) / a[i][i]
+
+        result[i] = (b[i] - sum) / a[i][i]
       end
 
-      return { result: Vector[*res], iterations: @iterations, errors: @errors }
-    end
-
-    private
-
-    def initial_validations
-      begin
-        matrix_a = Matrix[*@matrix_a]
-      rescue
-        @errors << 'matrix_a'
-      end
-
-      begin
-        vector_b = Matrix[@vector_b]
-      rescue
-        @errors << 'vector_b'
-      end
-
-      return unless @errors.empty?
-
-      ## Validate Matrix Determinant
-      if matrix_a.determinant == 0
-        @errors << 'matrix_determinant'
-      end
-
-      ## Validate Matrix Square
-      if !matrix_a.square?
-        @errors << 'matrix_square'
-      end
-
-      ## Validate Vector B has 1 column
-      if vector_b.row_size != 1
-        @errors << 'vector_column'
-      end
-
-      ## Validate Matrix A and Vector B has the same dimensions
-      if matrix_a.row_size != vector_b.column_size
-        @errors << 'different_dimensions'
-      end
+      return { result: Methods::Utils::Matrix.store_vector(result), iterations: , errors: }
     end
   end
 end

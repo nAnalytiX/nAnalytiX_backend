@@ -47,4 +47,29 @@ module Methods::Utils::Validations
 
     return errors
   end
+
+  def self.interpolation points
+    errors = []
+
+    if points.empty?
+      errors << 'points-empty'
+
+      return errors
+    end
+
+    if points.length < 1
+      errors << 'points-number'
+
+      return errors
+    end
+
+    points.each do |point|
+      errors << 'points-malformed' unless point.is_a?(Array) && point.size == 2
+    end
+
+    xs = points.map { |p| p[0] }
+    errors << 'x-distinct' if xs.uniq.size != xs.size
+
+    errors
+  end
 end
