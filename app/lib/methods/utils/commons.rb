@@ -39,14 +39,33 @@ module Methods::Utils::Commons
   end
 
   def self.calc_error value_a, value_b, error_type
-    if error_type == 'abs'
+    if error_type == 'absolute'
       return (value_a - value_b).abs
     end
 
-    if error_type == 'rel'
+    if error_type == 'relative'
       return ((value_a - value_b).abs / value_a.abs).abs
     end
 
     0
+  end
+
+  def self.format_iterations iterations
+    iterations.map do |iteration|
+      formated_iteration = {}
+
+      iteration.each do |key, value|
+        case key
+        when :a, :b, :m
+          formated_iteration[key] = sprintf("%0.7f", value)
+        when :fa, :fb, :fm, :error
+          formated_iteration[key] = "%.1e" % value
+        else
+          formated_iteration[key] = value
+        end
+      end
+
+      formated_iteration
+    end
   end
 end

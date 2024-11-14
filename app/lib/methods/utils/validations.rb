@@ -34,7 +34,7 @@ module Methods::Utils::Validations
 
   def self.max_iterations max_iterations, errors
     if !max_iterations.present? && tol <= 0
-      errors << 'max_iterations'
+      errors << 'nmax'
     end
 
     return errors

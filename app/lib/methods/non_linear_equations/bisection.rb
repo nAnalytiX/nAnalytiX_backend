@@ -1,6 +1,6 @@
 module Methods::NonLinearEquations::Bisection
   class << self
-    def exec(func, a, b, tol = 0.0000001, nmax = 100, error_type = 'abs')
+    def exec(func, a, b, tol = 0.0000001, nmax = 100, error_type = 'absolute')
       @func = Methods::Utils::Commons.format_function(func)
       @a = a
       @b = b
@@ -34,11 +34,10 @@ module Methods::NonLinearEquations::Bisection
         _Fx_m = f.call(m_new)
 
         if i > 1
-          #error = ((m_new - m_old).abs / m_new.abs).abs
           error = Methods::Utils::Commons.calc_error(m_new, m_old, @error_type)
         end
 
-        @iterations << { i:, a:, m: m_new, b:, fa: _Fx_b, fm: _Fx_m, fb: _Fx_a, error: }
+        @iterations << { i:, a:, m: m_new, b:, fm: _Fx_m, error: }
 
         if error < @tol || _Fx_m == 0
           break
@@ -57,7 +56,7 @@ module Methods::NonLinearEquations::Bisection
 
       final_validations()
 
-      { conclution: @conclution, iterations: @iterations, errors: @errors }
+      { conclution: @conclution, iterations: Methods::Utils::Commons.format_iterations(@iterations), errors: @errors }
     end
 
     private
@@ -85,7 +84,7 @@ module Methods::NonLinearEquations::Bisection
       elsif last_iteration[:i] === @nmax
         @errors << 'root_not_found'
       else
-        @errors << 'method_failure'
+        @errors << 'method_fail'
       end
     end
 

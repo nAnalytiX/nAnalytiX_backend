@@ -13,8 +13,8 @@ module Methods::LinearEquations::FactorizationLuSimple
       return { iterations: [], errors: @errors } unless @errors.empty?
       n = matrix.size
 
-      _L = Methods::Utils::Matrix.generate_L_matrix @matrix
-      _U = Methods::Utils::Matrix.generate_U_matrix @matrix
+      _L = Methods::Utils::Matrix.generate_simple_L_matrix @matrix
+      _U = Methods::Utils::Matrix.generate_simple_U_matrix @matrix
 
       _M = @matrix.map(&:dup)
 
@@ -65,66 +65,5 @@ module Methods::LinearEquations::FactorizationLuSimple
 
       return { iterations: @iterations, solution: solution, errors: @errors }
     end
-
-    private
-
-    def generate_L_matrix matrix
-      n = matrix.size
-      result = Array.new(n) { Array.new(n, 0.0) }
-
-      n.times { |i| result[i][i] = 1 }
-
-      result
-    end
-
-    def generate_U_matrix matrix
-      n = matrix.size
-      result = Array.new(n) { Array.new(n, 0.0) }
-
-      n.times do |i|
-        n.times do |j|
-          result[i][j] = i == 0 ? matrix[i][j] : 0.0
-        end
-      end
-
-      result
-    end
-
-    def initial_validations
-      begin
-        matrix = Matrix[*@matrix]
-      rescue
-        @errors << 'matrix'
-      end
-
-      begin
-        vector = Matrix[@vector]
-      rescue
-        @errors << 'vector'
-      end
-
-      return unless @errors.empty?
-
-      ## Validate Matrix Determinant
-      if matrix.determinant == 0
-        @errors << 'matrix_determinant'
-      end
-
-      ## Validate Matrix Square
-      if !matrix.square?
-        @errors << 'matrix_square'
-      end
-
-      ## Validate Vector B has 1 column
-      if vector.row_size != 1
-        @errors << 'vector_column'
-      end
-
-      ## Validate Matrix A and Vector B has the same dimensions
-      if matrix.row_size != vector.column_size
-        @errors << 'different_dimensions'
-      end
-    end
   end
 end
-

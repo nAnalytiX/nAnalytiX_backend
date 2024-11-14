@@ -14,9 +14,9 @@ module Methods::LinearEquations::FactorizationLuPartial
 
       n = matrix.size
 
-      _L = Methods::Utils::Matrix.generate_L_matrix @matrix
-      _U = Methods::Utils::Matrix.generate_U_matrix @matrix
-      _P = Methods::Utils::Matrix.generate_L_matrix @matrix
+      _L = Methods::Utils::Matrix.generate_simple_L_matrix @matrix
+      _U = Methods::Utils::Matrix.generate_simple_U_matrix @matrix
+      _P = Methods::Utils::Matrix.generate_simple_L_matrix @matrix
 
       _M = @matrix.map(&:dup)
 
@@ -78,8 +78,5 @@ module Methods::LinearEquations::FactorizationLuPartial
 
       return { iterations: @iterations, solution: solution, errors: @errors }
     end
-
-    private
-
   end
 end

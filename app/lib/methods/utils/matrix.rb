@@ -1,5 +1,5 @@
 module Methods::Utils::Matrix
-  def self.generate_L_matrix matrix
+  def self.generate_simple_L_matrix matrix
     n = matrix.size
     result = Array.new(n) { Array.new(n, 0.0) }
 
@@ -8,7 +8,7 @@ module Methods::Utils::Matrix
     result
   end
 
-  def self.generate_U_matrix matrix
+  def self.generate_simple_U_matrix matrix
     n = matrix.size
     result = Array.new(n) { Array.new(n, 0.0) }
 
