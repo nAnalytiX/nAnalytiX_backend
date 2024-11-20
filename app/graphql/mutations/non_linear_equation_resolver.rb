@@ -2,11 +2,18 @@ module Mutations
   class NonLinearEquationResolver < BaseMutation
     # Arguments
     argument :method, String, required: true
-    argument :matrix_a, GraphQL::Types::JSON, required: true
-    argument :vector_b, GraphQL::Types::JSON, required: true
-    argument :vector_x0, GraphQL::Types::JSON, required: false
+    argument :fx, String, required: false
+    argument :gx, String, required: false
+    argument :derivate, String, required: false
+    argument :second_derivate, String, required: false
+    argument :interval_a, Float, required: false
+    argument :interval_b, Float, required: false
+    argument :x0, Float, required: false
+    argument :x1, Float, required: false
+    argument :delta, Float, required: false
     argument :tolerance, Float, required: false
     argument :nmax, Int, required: false
+    argument :error_type, String, required: false
 
     # Response
     field :result, GraphQL::Types::JSON, null: false
@@ -16,34 +23,24 @@ module Mutations
       
       result = []
 
-      matrix_a = JSON.parse(args[:matrix_a])
-      vector_b = JSON.parse(args[:vector_b])
-
       result =
         case method
         ## Non Linear Equations
-        when 'gauss_simple'
-          Methods::LinearEquations::GaussEliminationSimple.exec(matrix_a, vector_b)
-        when 'gauss_partial'
-          Methods::LinearEquations::GaussEliminationPartial.exec(matrix_a, vector_b)
-        when 'gauss_total'
-          Methods::LinearEquations::GaussEliminationTotal.exec(matrix_a, vector_b)
-        when 'lu_simple'
-          Methods::LinearEquations::FactorizationLuSimple.exec(matrix_a, vector_b)
-        when 'lu_partial'
-          Methods::LinearEquations::FactorizationLuPartial.exec(matrix_a, vector_b)
-        when 'crout'
-          Methods::LinearEquations::Crout.exec(matrix_a, vector_b)
-        when 'doolittle'
-          Methods::LinearEquations::Doolittle.exec(matrix_a, vector_b)
-        when 'cholesky'
-          Methods::LinearEquations::Cholesky.exec(matrix_a, vector_b)
-        when 'jacobi'
-          Methods::LinearEquations::Jacobi.exec(matrix_a, vector_b, args[:vector_x0], args[:norm], args[:tolerance], args[:nmax])
-        when 'gauss'
-          Methods::LinearEquations::GaussSeidel.exec(matrix_a, vector_b, args[:vector_x0], args[:norm], args[:tolerance], args[:nmax])
-        when 'sor'
-          Methods::LinearEquations::Sor.exec(matrix_a, vector_b, args[:vector_x0], args[:norm], args[:tolerance], args[:nmax])
+        when 'incremental_search'
+          Methods::NonLinearEquations::IncrementalSearch.exec(args[:fx], args[:x0], args[:delta], args[:nmax])
+        when 'bisection'
+          Methods::NonLinearEquations::Bisection.exec(args[:fx], args[:interval_a], args[:interval_b], args[:tolerance], args[:nmax], args[:error_type])
+        when 'false_position'
+          Methods::NonLinearEquations::FalsePosition.exec(args[:fx], args[:interval_a], args[:interval_b], args[:tolerance], args[:nmax], args[:error_type])
+        when 'newton'
+          Methods::NonLinearEquations::Newton.exec(args[:fx], args[:derivate], args[:x0], args[:tolerance], args[:nmax], args[:error_type])
+        when 'multiple_roots'
+          Methods::NonLinearEquations::MultipleRoots.exec(args[:fx], args[:derivate], args[:second_derivate], args[:x0], args[:tolerance], args[:nmax], args[:error_type])
+        when 'secant'
+          Methods::NonLinearEquations::Secant.exec(args[:fx], args[:x0], args[:x1], args[:tolerance], args[:nmax], args[:error_type])
+        when 'fixed_point'
+          Methods::NonLinearEquations::FixedPoint.exec(args[:fx], args[:gx], args[:x0], args[:tolerance], args[:nmax], args[:error_type])
+
         ## Linear Equations
         end
 
