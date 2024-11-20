@@ -3,23 +3,26 @@ require 'matrix'
 module Methods::LinearEquations::GaussEliminationTotal
   class << self
     def exec(matrix_a, vector_b)
-      @matrix_a = matrix_a
-      @vector_b = vector_b
-      @errors = []
-      @iterations = []
+      matrix = Methods::Utils::Matrix.matrix_format matrix_a
+      vector = Methods::Utils::Matrix.vector_format vector_b
+      errors = []
+      iterations = []
 
-      initial_validations()
+      errors = Methods::Utils::Matrix.matrix_vector_validations matrix, vector
 
-      return { result: nil, iterations: [], errors: @errors } unless @errors.empty?
+      return { result: nil, iterations: [], errors: errors } unless errors.empty?
 
-      a = @matrix_a
-      b = @vector_b
-      n = @matrix_a.size
+      a = matrix
+      b = vector
+      n = matrix.size
 
       perm = (0...n).to_a
 
       (0..n-1).each do |k|
-        @iterations << { step: k, matrix: a.map(&:dup), vector: b.dup }
+        iterations << { step: k,
+                        matrix: Methods::Utils::Matrix.store_matrix(a),
+                        vector: Methods::Utils::Matrix.store_vector(b)
+                      }
 
         max_value = 0
         max_row = k
@@ -69,7 +72,7 @@ module Methods::LinearEquations::GaussEliminationTotal
           sum += a[i][j] * res[j]
         end
         if a[i][i] == 0
-          @errors << 'no_pivot_sustitution'
+          errors << 'no_pivot_sustitution'
 
           break
         end
@@ -81,45 +84,7 @@ module Methods::LinearEquations::GaussEliminationTotal
         res_final[perm[i]] = res[i]
       end
 
-      return { result: res_final, iterations: @iterations, errors: @errors }
-    end
-
-    private
-
-    def initial_validations
-      begin
-        matrix_a = Matrix[*@matrix_a]
-      rescue
-        @errors << 'matrix_a'
-      end
-
-      begin
-        vector_b = Matrix[@vector_b]
-      rescue
-        @errors << 'vector_b'
-      end
-
-      return unless @errors.empty?
-
-      ## Validate Matrix Determinant
-      if matrix_a.determinant == 0
-        @errors << 'matrix_determinant'
-      end
-
-      ## Validate Matrix Square
-      if !matrix_a.square?
-        @errors << 'matrix_square'
-      end
-
-      ## Validate Vector B has 1 column
-      if vector_b.row_size != 1
-        @errors << 'vector_column'
-      end
-
-      ## Validate Matrix A and Vector B has the same dimensions
-      if matrix_a.row_size != vector_b.column_size
-        @errors << 'different_dimensions'
-      end
+      return { result: res_final, iterations: , errors: }
     end
   end
 end

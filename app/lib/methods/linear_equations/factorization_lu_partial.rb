@@ -3,8 +3,8 @@ require 'matrix'
 module Methods::LinearEquations::FactorizationLuPartial
   class << self
     def exec(matrix, vector = [1, 1, 1 ,1])
-      @matrix = matrix
-      @vector = vector
+      @matrix = Methods::Utils::Matrix.matrix_format matrix
+      @vector = Methods::Utils::Matrix.vector_format vector
       @errors = []
       @iterations = []
 
@@ -74,9 +74,9 @@ module Methods::LinearEquations::FactorizationLuPartial
       # Regresive Sustitution: resolver UX = Y
       regresive_result = Methods::Utils::Matrix.regressive_sustitution(_U, progressive_result)
 
-      solution = Methods::Utils::Matrix.store_vector(regresive_result)
+      result = Methods::Utils::Matrix.store_vector(regresive_result)
 
-      return { iterations: @iterations, solution: solution, errors: @errors }
+      return { iterations: @iterations, result: result, errors: @errors }
     end
   end
 end

@@ -3,8 +3,8 @@ require 'matrix'
 module Methods::LinearEquations::Crout
   class << self
     def exec(matrix, vector = [1, 1, 1 ,1])
-      @matrix = matrix
-      @vector = vector
+      @matrix = Methods::Utils::Matrix.matrix_format matrix
+      @vector = Methods::Utils::Matrix.vector_format vector
       @errors = []
       @iterations = []
 
@@ -63,9 +63,9 @@ module Methods::LinearEquations::Crout
       # Regresive Sustitution: resolver UX = Y
       regresive_result = Methods::Utils::Matrix.regressive_sustitution(_U, progressive_result)
 
-      solution = Methods::Utils::Matrix.store_vector(regresive_result)
+      result = Methods::Utils::Matrix.store_vector(regresive_result)
 
-      return { solution:, iterations: @iterations, errors: @errors }
+      return { result:, iterations: @iterations, errors: @errors }
     end
   end
 end

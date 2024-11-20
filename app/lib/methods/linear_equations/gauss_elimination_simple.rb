@@ -3,8 +3,8 @@ require 'matrix'
 module Methods::LinearEquations::GaussEliminationSimple
   class << self
     def exec(matrix_a, vector_b = [1, 1, 1, 1])
-      matrix = matrix_a.map(&:dup)
-      vector = vector_b.map(&:dup)
+      matrix = Methods::Utils::Matrix.matrix_format matrix_a
+      vector = Methods::Utils::Matrix.vector_format vector_b
       errors = []
       iterations = []
 
