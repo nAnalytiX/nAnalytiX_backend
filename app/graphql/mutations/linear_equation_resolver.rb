@@ -20,7 +20,7 @@ module Mutations
 
       matrix_a = JSON.parse(args[:matrix_a])
       vector_b = JSON.parse(args[:vector_b])
-      vector_x0 = JSON.parse(args[:vector_x0])
+      vector_x0 = JSON.parse(args[:vector_x0]) if args[:vector_x0].present?
 
       result =
         case method
