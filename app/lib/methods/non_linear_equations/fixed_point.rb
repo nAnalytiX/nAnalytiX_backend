@@ -1,6 +1,6 @@
 module Methods::NonLinearEquations::FixedPoint
   class << self
-    def exec(func_x, func_g, x0, tol = 0.0000001, nmax = 100, error_type = 'abs')
+    def exec(func_x, func_g, x0, tol = 0.0000001, nmax = 100, error_type = 'absolute')
       @func_x = Methods::Utils::Commons.format_function(func_x)
       @func_g = Methods::Utils::Commons.format_function(func_g)
       @x0 = x0
@@ -42,7 +42,7 @@ module Methods::NonLinearEquations::FixedPoint
 
       final_validations()
 
-      { conclution: @conclution, iterations: @iterations, errors: @errors }
+      { conclution: @conclution, iterations: Methods::Utils::Commons.format_iterations(@iterations), errors: @errors }
     end
 
     private

@@ -19,8 +19,9 @@ module Methods::Utils::Commons
         new_string_chars << current
       end
 
+
       if index == string_chars.length - 1
-        new_string_chars << acc.to_f.to_s
+        new_string_chars << acc.to_f.to_s if acc != ''
       end
     end
 
@@ -35,7 +36,6 @@ module Methods::Utils::Commons
     func_string = func_string.gsub(/\be\b/, 'Math.exp')
     func_string = func_string.gsub(/\bsqrt\b/, 'Math.sqrt')
     func_string = func_string.gsub(/\^/, '**')
-
   end
 
   def self.calc_error value_a, value_b, error_type
@@ -56,9 +56,9 @@ module Methods::Utils::Commons
 
       iteration.each do |key, value|
         case key
-        when :a, :b, :m
-          formated_iteration[key] = sprintf("%0.7f", value)
-        when :fa, :fb, :fm, :error
+        when :a, :b, :m, :x, :gx
+          formated_iteration[key] = sprintf("%0.10f", value)
+        when :fa, :fb, :fm, :error, :f_prime, :fx
           formated_iteration[key] = "%.1e" % value
         else
           formated_iteration[key] = value

@@ -1,6 +1,6 @@
 module Methods::NonLinearEquations::Newton
   class << self
-    def exec(func, derivate, x0, tol = 0.0000001, nmax = 100, error_type = 'abs')
+    def exec(func, derivate, x0, tol = 0.0000001, nmax = 100, error_type = 'absolute')
       @func = Methods::Utils::Commons.format_function(func)
       @derivate = Methods::Utils::Commons.format_function(derivate)
       @x0 = x0
@@ -53,7 +53,7 @@ module Methods::NonLinearEquations::Newton
 
       final_validations()
 
-      { conclution: @conclution, iterations: @iterations, errors: @errors }
+      { conclution: @conclution, iterations: Methods::Utils::Commons.format_iterations(@iterations), errors: @errors }
     end
 
     private

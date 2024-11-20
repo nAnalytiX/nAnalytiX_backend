@@ -1,6 +1,6 @@
 module Methods::NonLinearEquations::MultipleRoots
   class << self
-    def exec(func, first_derivate, second_derivate, x0, tol = 0.0000001, nmax = 100, error_type = 'abs')
+    def exec(func, first_derivate, second_derivate, x0, tol = 0.0000001, nmax = 100, error_type = 'absolute')
       @func = Methods::Utils::Commons.format_function(func)
       @first_derivate = Methods::Utils::Commons.format_function(first_derivate)
       @second_derivate = Methods::Utils::Commons.format_function(second_derivate)
@@ -53,7 +53,7 @@ module Methods::NonLinearEquations::MultipleRoots
 
       final_validations()
 
-      { conclution: @conclution, iterations: @iterations, errors: @errors }
+      { conclution: @conclution, iterations: Methods::Utils::Commons.format_iterations(@iterations), errors: @errors }
     end
 
     private
@@ -66,7 +66,7 @@ module Methods::NonLinearEquations::MultipleRoots
       return unless @errors.empty?
 
       @errors = Methods::Utils::Validations.function @func, nil, { x0: @x0 }, @errors
-      @errors = Methods::Utils::Validations.function @first_derivate, 'first_derivate', { x0: @x0 }, @errors
+      @errors = Methods::Utils::Validations.function @first_derivate, 'derivate', { x0: @x0 }, @errors
       @errors = Methods::Utils::Validations.function @second_derivate, 'second_derivate', { x0: @x0 }, @errors
     end
 

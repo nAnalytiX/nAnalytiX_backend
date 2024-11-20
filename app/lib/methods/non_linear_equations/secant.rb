@@ -1,6 +1,6 @@
 module Methods::NonLinearEquations::Secant
   class << self
-    def exec(func, x0, x1, tol = 0.0000001, nmax = 100, error_type = 'abs')
+    def exec(func, x0, x1, tol = 0.0000001, nmax = 100, error_type = 'absolute')
       @func = Methods::Utils::Commons.format_function(func)
       @x0 = x0
       @x1 = x1
@@ -53,7 +53,7 @@ module Methods::NonLinearEquations::Secant
 
       final_validations()
 
-      { conclution: @conclution, iterations: @iterations, errors: @errors }
+      { conclution: @conclution, iterations: Methods::Utils::Commons.format_iterations(@iterations), errors: @errors }
     end
 
     private

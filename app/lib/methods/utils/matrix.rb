@@ -1,4 +1,26 @@
 module Methods::Utils::Matrix
+  def self.matrix_format matrix
+    n = matrix.size
+    result = Array.new(n) { Array.new(n) }
+
+    n.times do |i|
+      n.times do |j|
+        result[i][j] = matrix[i][j].to_f
+      end
+    end
+
+    result
+  end
+
+  def self.vector_format vector
+    n = vector.size
+    result = Array.new(n)
+
+    n.times { |i| result[i] = vector[i].to_f }
+
+    result
+  end
+
   def self.generate_simple_L_matrix matrix
     n = matrix.size
     result = Array.new(n) { Array.new(n, 0.0) }
