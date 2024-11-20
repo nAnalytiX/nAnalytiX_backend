@@ -3,6 +3,9 @@ require 'matrix'
 module Methods::LinearEquations::Jacobi
   class << self
     def exec(matrix, vector, x0, norm, tolerance = 0.0000001, nmax = 100)
+      matrix = Methods::Utils::Matrix.matrix_format matrix
+      vector = Methods::Utils::Matrix.vector_format vector
+      x0 = Methods::Utils::Matrix.vector_format x0
       errors = []
       iterations = []
 
@@ -41,13 +44,13 @@ module Methods::LinearEquations::Jacobi
 
       x0_old = x0.dup
 
-      iterations << { iteration: 0, error: nil, value: x0 }
+      iterations << { iteration: 0, error: nil, value: Methods::Utils::Matrix.store_vector(x0) }
 
       (1..nmax).each do |i|
         x = Methods::Utils::Matrix.vector_add(Methods::Utils::Matrix.matrix_vector_multiply(_T, x0_old), _C)
         error = Methods::Utils::Matrix.generate_vector_norma(Methods::Utils::Matrix.vector_substract(x0_old, x), norm)
 
-        iterations << { iteration: i, error: error, value: x }
+        iterations << { iteration: i, error: "%.1e" % error, value: Methods::Utils::Matrix.store_vector(x) }
 
         if error < tolerance
           break
