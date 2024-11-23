@@ -3,6 +3,8 @@ require 'matrix'
 module Methods::LinearEquations::GaussSeidel
   class << self
     def exec(matrix, vector, x0, norm, tolerance = 0.0000001, nmax = 100)
+      matrix = Methods::Utils::Matrix.matrix_format matrix
+      vector = Methods::Utils::Matrix.vector_format vector
       errors = []
       iterations = []
 
@@ -54,6 +56,8 @@ module Methods::LinearEquations::GaussSeidel
 
         x0_old = x
       end
+
+      byebug
 
       result[:iterations] = iterations 
 

@@ -1,8 +1,8 @@
 module Methods::Interpolation::Lagrange
   class << self
     def exec points
-      # Validations
-      errors = interpolation_validations points
+      points = Methods::Utils::Points.format_points_v2(points)
+      errors = Methods::Utils::Points.validate_points_v2(points) 
 
       return { errors: } unless errors.empty?
 

@@ -2,7 +2,8 @@ module Methods::Interpolation::SplineLinear
   class << self
     def exec points
       # Validations
-      errors = Methods::Utils::Validations.interpolation points
+      points = Methods::Utils::Points.format_points_v2(points)
+      errors = Methods::Utils::Points.validate_points_v2(points) 
 
       return { errors: } unless errors.empty?
 

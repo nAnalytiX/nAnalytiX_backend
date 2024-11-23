@@ -4,6 +4,8 @@ require 'matrix'
 module Methods::LinearEquations::Sor
   class << self
     def exec(matrix, vector, x0, norm, w, tolerance = 0.0000001, nmax = 100)
+      matrix = Methods::Utils::Matrix.matrix_format matrix
+      vector = Methods::Utils::Matrix.vector_format vector
       errors = []
       iterations = []
 

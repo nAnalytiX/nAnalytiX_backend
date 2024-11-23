@@ -2,7 +2,8 @@ module Methods::Interpolation::Vandermonde
   class << self
     def exec points
       # Validations
-      errors = interpolation_validations points
+      points = Methods::Utils::Points.format_points(points)
+      errors = Methods::Utils::Points.validate_points(points) 
 
       return { errors: } unless errors.empty?
 
